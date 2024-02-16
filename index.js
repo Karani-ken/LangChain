@@ -1,21 +1,27 @@
-import {config} from "dotenv"
-
+import { config } from "dotenv";
+import { ChatOpenAI } from "@langchain/openai";
+import { ChatPromptTemplate } from "@langchain/core/prompts";
 config();
-import {Configuration, OpenAI } from "openai";
+const chatModel = new ChatOpenAI(process.env.OPENAI_API_KEY);
 
-const configuration = new Configuration({
-    openAIApiKey:process.env.API_KEY
-})
+const prompt = ChatPromptTemplate.fromMessages([
+    ["system", "You are a world class technical documentation writer."],
+    ["user", "{input}"],
+]);
 
-const openai = new OpenAI(configuration);
-  
-async function chat(input){
-    const messages = [{role:"user", content: input}];
+const chain = prompt.pipe(chatModel);
 
-    const response = await openai.createChatCompletion({
-        model
-    })
-}
+(async () =>{
+    try{
+        const result = await chain.invoke({
+            input: "What is LangSmith?",
+        })
+        console.log(result);
+    }catch(error){
+        console.error("Error", error)
+    }
+})();
+
 
  
   
